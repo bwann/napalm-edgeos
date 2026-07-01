@@ -14,11 +14,10 @@
 
 """napalm_edgeos package."""
 from napalm_edgeos.edgeos import EdgeOSDriver
-import pkg_resources
-
 try:
-    __version__ = pkg_resources.get_distribution('napalm-edgeos').version
-except pkg_resources.DistributionNotFound:
+    from importlib.metadata import version, PackageNotFoundError
+    __version__ = version('napalm-edgeos')
+except (ImportError, PackageNotFoundError):
     __version__ = "Not installed"
 
 __all__ = ('EdgeOSDriver',)
