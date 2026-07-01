@@ -838,6 +838,31 @@ class EdgeOSDriver(NetworkDriver):
 
         return user_auth
 
+    def get_config(self, retrieve="all", full=False, sanitized=False):
+        config = {
+            "running": "",
+            "startup": "",
+            "candidate": "",
+        }
+
+        if retrieve in ("running", "all"):
+            config["running"] = self.device.send_command("show configuration")
+
+        if retrieve in ("startup", "all"):
+            config["startup"] = self.device.send_command(
+                "cat " + self._BOOT_FILENAME
+            )
+
+        if retrieve in ("candidate", "all"):
+            output = self.device.send_config_set(["compare"])
+            match = re.findall(
+                "No changes between working and active configurations", output
+            )
+            if not match:
+                config["candidate"] = "".join(output.splitlines(True)[1:-1])
+
+        return config
+
     def ping(self,
              destination,
              source=C.PING_SOURCE,
